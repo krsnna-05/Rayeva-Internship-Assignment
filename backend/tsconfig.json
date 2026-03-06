@@ -12,7 +12,9 @@
       "@src/*": ["src/*"]
     },
     "useUnknownInCatchVariables": false,
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals"],
+
+    "resolveJsonModule": true,
   },
   "ts-node": {
     "swc": true,

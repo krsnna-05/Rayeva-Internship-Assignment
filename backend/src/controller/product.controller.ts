@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 
 import Product from '@src/models/product.model';
+import aiService from '@src/services/ai.service';
 
 const createProduct = async (req: Request, res: Response) => {
   const { name, description } = req.body;
@@ -10,13 +11,18 @@ const createProduct = async (req: Request, res: Response) => {
   }
 
   try {
+    const aiMetadata = await aiService.generateMetaData({
+      productName: name,
+      productDescription: description,
+    });
+
     const createdProduct = await Product.create({
       name,
       description,
       // Dummy placeholders for AI metadata fields until AI integration is added.
-      category: 'Uncategorized',
-      seo_tags: ['eco-product', 'placeholder-tag'],
-      sustainability_attributes: ['to-be-generated'],
+      category: aiMetadata.primary_category,
+      seo_tags: aiMetadata.seo_tags,
+      sustainability_attributes: aiMetadata.sustainability_attributes,
     });
 
     return res.status(201).json({
