@@ -6,4 +6,3 @@ const categoryRouter = Router();
 
 export default  categoryRouter
 
-

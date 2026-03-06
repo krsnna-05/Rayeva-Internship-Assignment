@@ -1,7 +1,5 @@
-import { Router } from "express";
-
-
+import { Router } from 'express';
 
 const proposalRouter = Router();
 
-export default  proposalRouter
+export default proposalRouter;
