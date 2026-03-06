@@ -19,7 +19,7 @@ app.use(morgan('dev'));
 connectDB();
 
 // API routes
-app.use('/api/v1/product', productRouter);
+app.use('/api/v1/products', productRouter);
 app.use('/api/v1/proposal', proposalRouter);
 
 app.use('/health', (req, res) => {

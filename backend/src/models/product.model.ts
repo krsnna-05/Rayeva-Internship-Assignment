@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
 
-type product = {
+type Product = {
   _id: string;
   name: string;
   description: string;
@@ -9,14 +9,13 @@ type product = {
   sustainability_attributes: string[];
 };
 
-const productSchema = new Schema<product>(
+const productSchema = new Schema<Product>(
   {
-    _id: { type: String, required: true },
     name: { type: String, required: true },
     description: { type: String, required: true },
-    category: { type: String, required: true },
-    seo_tags: [{ type: String }],
-    sustainability_attributes: [{ type: String }],
+    category: { type: String, required: true, default: 'Uncategorized' },
+    seo_tags: { type: [String], default: [] },
+    sustainability_attributes: { type: [String], default: [] },
   },
   { timestamps: true },
 );
@@ -25,4 +24,4 @@ const Product = model('Product', productSchema);
 
 export default Product;
 
-export type { product };
+export type { Product };
