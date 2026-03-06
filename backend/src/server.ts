@@ -2,7 +2,7 @@ import express from 'express';
 import morgan from 'morgan';
 
 import { connectDB } from './DB';
-import categoryRouter from './routes/categroy.route';
+import productRouter from './routes/product.route';
 import proposalRouter from './routes/proposal.route';
 
 /******************************************************************************
@@ -19,7 +19,15 @@ app.use(morgan('dev'));
 connectDB();
 
 // API routes
-app.use('/api/v1/category', categoryRouter);
+app.use('/api/v1/product', productRouter);
 app.use('/api/v1/proposal', proposalRouter);
+
+app.use('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK 😀',
+    service: 'rayeva-ai-api',
+    timestamp: new Date().toISOString(),
+  });
+});
 
 export default app;
