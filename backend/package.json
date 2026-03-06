@@ -19,8 +19,12 @@
     "@src": "dist"
   },
   "dependencies": {
+    "@types/cors": "^2.8.19",
     "@types/mongoose": "^5.11.96",
+    "ai": "^6.0.116",
+    "ai-sdk-ollama": "^3.8.0",
     "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
     "dayjs": "^1.11.19",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
@@ -32,7 +36,8 @@
     "jsonfile": "^6.2.0",
     "module-alias": "^2.3.4",
     "mongoose": "^9.2.4",
-    "morgan": "^1.10.1"
+    "morgan": "^1.10.1",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
