@@ -23,6 +23,39 @@ import { Link } from "react-router";
 
 const MAX_VISIBLE_TAGS = 3;
 const PAGE_SIZE = 6;
+const CACHE_TTL_MS = 60_000;
+
+type ProductPageCache = {
+  products: ProductItem[];
+  page: number;
+  totalPages: number;
+  totalProducts: number;
+  cachedAt: number;
+};
+
+const productsPageCache = new Map<number, ProductPageCache>();
+
+const getCachedPage = (page: number) => {
+  const cached = productsPageCache.get(page);
+
+  if (!cached) {
+    return null;
+  }
+
+  if (Date.now() - cached.cachedAt > CACHE_TTL_MS) {
+    productsPageCache.delete(page);
+    return null;
+  }
+
+  return cached;
+};
+
+const setCachedPage = (cache: Omit<ProductPageCache, "cachedAt">) => {
+  productsPageCache.set(cache.page, {
+    ...cache,
+    cachedAt: Date.now(),
+  });
+};
 
 const Product = () => {
   const [products, setProducts] = useState<ProductItem[]>([]);
@@ -36,8 +69,22 @@ const Product = () => {
   const [createSuccess, setCreateSuccess] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const fetchProducts = async (page: number) => {
+  const fetchProducts = async (page: number, force = false) => {
     try {
+      if (!force) {
+        const cached = getCachedPage(page);
+
+        if (cached) {
+          setProducts(cached.products);
+          setCurrentPage(cached.page);
+          setTotalPages(cached.totalPages);
+          setTotalProducts(cached.totalProducts);
+          setLoadError(null);
+          setIsLoading(false);
+          return;
+        }
+      }
+
       setIsLoading(true);
       setLoadError(null);
       const response = await listProducts(page, PAGE_SIZE);
@@ -45,6 +92,12 @@ const Product = () => {
       setCurrentPage(response.page);
       setTotalPages(Math.max(response.totalPages, 1));
       setTotalProducts(response.total);
+      setCachedPage({
+        products: response.data,
+        page: response.page,
+        totalPages: Math.max(response.totalPages, 1),
+        totalProducts: response.total,
+      });
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Failed to fetch products.";
@@ -69,11 +122,12 @@ const Product = () => {
 
       await createProduct(payload);
       setCreateSuccess("Product created successfully.");
+      productsPageCache.clear();
 
       if (currentPage !== 1) {
         setCurrentPage(1);
       } else {
-        await fetchProducts(1);
+        await fetchProducts(1, true);
       }
     } catch (error) {
       const message =
@@ -90,11 +144,12 @@ const Product = () => {
       await removeProduct(id);
       setCreateSuccess("Product deleted successfully.");
       setCreateError(null);
+      productsPageCache.clear();
 
       if (products.length === 1 && currentPage > 1) {
         setCurrentPage((previous) => previous - 1);
       } else {
-        await fetchProducts(currentPage);
+        await fetchProducts(currentPage, true);
       }
     } catch (error) {
       const message =
@@ -153,7 +208,7 @@ const Product = () => {
               type="button"
               variant="outline"
               className="mt-3"
-              onClick={() => void fetchProducts(currentPage)}
+              onClick={() => void fetchProducts(currentPage, true)}
             >
               Retry
             </Button>
