@@ -1,9 +1,7 @@
+import { Navigate } from "react-router";
+
 const Home = () => {
-  return (
-    <div>
-      <p>This is Home</p>
-    </div>
-  );
+  return <Navigate to="/products" replace />;
 };
 
 export default Home;
