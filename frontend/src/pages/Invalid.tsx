@@ -22,7 +22,7 @@ const Invalid = () => {
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Link
-            to="/product"
+            to="/products"
             className="inline-flex items-center justify-center gap-2 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
           >
             <Box className="size-4" />
