@@ -1,4 +1,5 @@
-import { ArrowLeft, BadgeCheck, Leaf, Tag } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Leaf, LoaderCircle, Tag } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import {
   Card,
@@ -7,14 +8,57 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { dummyProducts } from "@/lib/dummy-products";
+import type { ProductItem } from "@/lib/dummy-products";
+import { getProduct } from "@/lib/product-api";
 import { Link, useParams } from "react-router";
 
 const ProductDetails = () => {
   const { id } = useParams();
-  const product = dummyProducts.find((item) => item._id === id);
+  const [product, setProduct] = useState<ProductItem | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!product) {
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!id) {
+        setError("Invalid product id.");
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setError(null);
+        const response = await getProduct(id);
+        setProduct(response);
+      } catch (fetchError) {
+        const message =
+          fetchError instanceof Error
+            ? fetchError.message
+            : "Failed to load product.";
+        setError(message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <main className="min-h-[calc(100vh-4rem)] bg-linear-to-b from-emerald-50/80 via-cyan-50/50 to-slate-50 px-4 py-8 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-3xl place-items-center rounded-2xl border border-emerald-200/50 bg-white/80 py-12 dark:border-emerald-900/30 dark:bg-slate-900/60">
+          <p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+            <LoaderCircle className="size-4 animate-spin" />
+            Loading product details...
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  if (!product || error) {
     return (
       <main className="min-h-[calc(100vh-4rem)] bg-linear-to-b from-emerald-50/80 via-cyan-50/50 to-slate-50 px-4 py-8 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl">
@@ -23,7 +67,7 @@ const ProductDetails = () => {
               <CardDescription className="text-rose-600 dark:text-rose-300">
                 PRODUCT NOT FOUND
               </CardDescription>
-              <CardTitle>Invalid product id: {id}</CardTitle>
+              <CardTitle>{error ?? `Invalid product id: ${id}`}</CardTitle>
             </CardHeader>
             <CardContent>
               <Link
